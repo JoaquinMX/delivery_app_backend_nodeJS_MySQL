@@ -1,3 +1,5 @@
+CREATE SCHEMA `delivery_app` ;
+
 USE delivery_app;
 
 CREATE TABLE users(
