@@ -10,6 +10,7 @@ const multer = require("multer");
  * Routes import
  */
 const usersRoutes = require('./routes/userRoutes');
+const categoriesRoutes = require('./routes/categoryRoutes');
 
 const port = process.env.PORT || 3000;
 
@@ -32,7 +33,8 @@ const upload = multer({
 /**
  *  Routes Calls
  */
-usersRoutes(app, upload);``
+usersRoutes(app, upload);
+categoriesRoutes(app);
 
 server.listen(3000, "192.168.1.76" || 'localhost', function () {
     console.log('Aplicacion de NodeJS ' + process.pid + ' iniciada');

@@ -128,5 +128,86 @@ module.exports = {
 
             });
         })
-    }
+    },
+
+    async update(req, res) {
+        console.log(req.body);
+        const user = JSON.parse(req.body.user);
+        const files = req.files;
+
+        if (files.length > 0) {
+            const path = `image_${Date.now()}`;
+            const url = await storage(files[0], path);
+
+            if(url != undefined && url != null) {
+                user.image = url;
+            }
+        }
+
+        
+
+        User.update(user, (err, data) => {
+
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con el registro del usuario',
+                    error: err
+                })
+            }
+            
+            User.findById(data, (err, myData) => {
+                if (err) {
+                    return res.status(501).json({
+                        success: false,
+                        message: 'Hubo un error con el registro del usuario',
+                        error: err
+                    })
+                }
+
+                myData.session_token = user.session_token;
+                //myData.roles = JSON.parse(myData.roles);
+                return res.status(201).json({
+                    success: true,
+                    message: 'El usuario se actualizo correctamente',
+                    data: myData
+                })
+            })
+        })
+    },
+
+    async updateWithoutImage(req, res) {
+
+        const user = req.body;
+        User.updateWithoutImage(user, (err, data) => {
+
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con el registro del usuario',
+                    error: err
+                })
+            }
+
+            User.findById(data, (err, myData) => {
+                if (err) {
+                    return res.status(501).json({
+                        success: false,
+                        message: 'Hubo un error con el registro del usuario',
+                        error: err
+                    })
+                }
+
+                myData.session_token = user.session_token;
+                //myData.roles = JSON.parse(myData.roles);
+                return res.status(201).json({
+                    success: true,
+                    message: 'El usuario se actualizo correctamente',
+                    data: myData
+                })
+            })
+        })
+    },
+    
+    
 }
