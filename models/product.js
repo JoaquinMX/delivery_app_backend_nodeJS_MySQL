@@ -28,7 +28,7 @@ Product.create = (product, result) => {
             product.image1,
             product.image2,
             product.image3,
-            id_category,
+            product.id_category,
             new Date(),
             new Date()
         ],
@@ -70,7 +70,7 @@ Product.create = (product, result) => {
                 product.image1,
                 product.image2,
                 product.image3,
-                id_category,
+                product.id_category,
                 new Date(),
                 product.id
             ],

@@ -3,6 +3,8 @@ const storage = require('../utils/cloud_storage');
 const asyncForEach = require('../utils/async_foreach');
 
 module.exports = {
+    
+
     async create(req, res) {
         const product = JSON.parse(req.body.product);
         const files = req.files;
