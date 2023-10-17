@@ -1,0 +1,42 @@
+const db = require('../config/config');
+
+const Order = {};
+
+Order.create = (order, result) => {
+    const sql = `
+        INSERT INTO
+            orders(
+                id_client,
+                id_address,
+                status,
+                timestamp,
+                created_at,
+                updated_at
+            )
+        VALUES(?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query(
+        sql,
+        [
+            order.id_client,
+            order.id_address,
+            'PAGADO', // 1. PAGADO 2. DESPACHADO. 3. EN CAMINO. 4. ENTREGADO,
+            Date.now(),
+            new Date(),
+            new Date()
+        ],
+        (err, res) => {
+            if (err) {
+                console.log('error:', err);
+                result(err, null);
+            }
+            else {
+                console.log('Id de la nueva orden: ', res.insertId);
+                result(null, res.insertId);
+            }
+        }
+    )
+}
+
+module.exports = Order;
