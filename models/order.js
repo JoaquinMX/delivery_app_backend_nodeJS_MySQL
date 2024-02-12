@@ -62,10 +62,88 @@ Order.findByStatus = (status, result) => {
     WHERE
         status = ?
     GROUP BY
-        O.id;
+        O.id
+    ORDER BY
+        O.timestamp;
         `;
 
   db.query(sql, status, (err, data) => {
+    if (err) {
+      console.log("error:", err);
+      result(err, null);
+    } else {
+      console.log(data);
+      result(null, data);
+    }
+  });
+};
+
+Order.findByDeliveryAndStatus = (id_delivery, status, result) => {
+  const sql = `
+    SELECT 
+        CONVERT(O.id, char) AS id,
+        CONVERT(O.id_client, char) AS id_client,
+        CONVERT(O.id_address, char) AS id_address,
+        CONVERT(O.id_delivery, char) AS id_delivery,
+        O.status,
+        O.timestamp,
+        O.lat,
+        O.lng,
+        JSON_OBJECT(
+        'id', CONVERT(A.id, char),
+        'id_user', CONVERT(U.id, char),
+        'address', A.address,
+        'neighborhood', A.neighborhood,
+        'lat', A.lat,
+        'lng', A.lng
+        ) AS address,
+        JSON_OBJECT(
+            'id', CONVERT(U.id, char),
+            'name', U.name,
+            'lastname', U.lastname,
+            'phone', U.phone,
+            'image', U.image
+        ) AS client,
+        JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'id', CONVERT(P.id, char),
+                'name', P.name,
+                'description', P.description,
+                'image1', P.image1,
+                'image2', P.image2,
+                'image3', P.image3,
+                'price', P.price,
+                'quantity', OHP.quantity
+            )
+        ) AS products
+    FROM
+        orders AS O
+    INNER JOIN
+        users AS U
+    ON
+        U.id = O.id_client
+    INNER JOIN
+        address AS A
+    ON
+        A.id = O.id_address
+    INNER JOIN
+        orders_has_products AS OHP
+    ON
+        OHP.id_order = O.id
+    INNER JOIN
+        products AS P
+    ON
+        P.id = OHP.id_product
+
+    WHERE
+        O.id_delivery = ? AND O.status = ?
+    GROUP BY
+        O.id
+    ORDER BY
+        O.timestamp;
+        `;
+
+  db.query(sql, [id_delivery, status], (err, data) => {
     if (err) {
       console.log("error:", err);
       result(err, null);
@@ -114,6 +192,28 @@ Order.create = (order, result) => {
       }
     }
   );
+};
+
+Order.updateStatus = (id_order, id_delivery, status, result) => {
+  const sql = `
+  UPDATE
+    orders
+  SET
+    id_delivery = ?,
+    status = ?,
+    updated_at = ?
+  WHERE
+    id = ?
+  `;
+
+  db.query(sql, [id_delivery, status, new Date(), id_order], (err, res) => {
+    if (err) {
+      console.log("error:", err);
+      result(err, null);
+    } else {
+      result(null, id_order);
+    }
+  });
 };
 
 module.exports = Order;

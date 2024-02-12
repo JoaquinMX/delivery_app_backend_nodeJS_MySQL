@@ -6,9 +6,20 @@ module.exports = (app) => {
     passport.authenticate("jwt", { session: false }),
     ordersController.findByStatus
   );
+  app.get(
+    "/api/orders/findByDeliveryAndStatus/:id_delivery/:status",
+    passport.authenticate("jwt", { session: false }),
+    ordersController.findByDeliveryAndStatus
+  );
   app.post(
     "/api/orders/create",
     passport.authenticate("jwt", { session: false }),
     ordersController.create
+  );
+
+  app.put(
+    "/api/orders/updateStatus",
+    passport.authenticate("jwt", { session: false }),
+    ordersController.updateStatus
   );
 };
