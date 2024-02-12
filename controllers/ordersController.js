@@ -16,7 +16,7 @@ module.exports = {
     });
   },
 
-  create(req, res) {
+  async create(req, res) {
     const order = req.body;
 
     Order.create(order, async (err, id) => {

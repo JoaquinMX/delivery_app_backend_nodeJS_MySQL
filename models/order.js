@@ -11,8 +11,11 @@ Order.findByStatus = (status, result) => {
         CONVERT(O.id_delivery, char) AS id_delivery,
         O.status,
         O.timestamp,
+        O.lat,
+        O.lng,
         JSON_OBJECT(
         'id', CONVERT(A.id, char),
+        'id_user', CONVERT(U.id, char),
         'address', A.address,
         'neighborhood', A.neighborhood,
         'lat', A.lat,
@@ -22,13 +25,14 @@ Order.findByStatus = (status, result) => {
             'id', CONVERT(U.id, char),
             'name', U.name,
             'lastname', U.lastname,
+            'phone', U.phone,
             'image', U.image
         ) AS client,
         JSON_ARRAYAGG(
             JSON_OBJECT(
                 'id', CONVERT(P.id, char),
                 'name', P.name,
-                'dedscription', P.description,
+                'description', P.description,
                 'image1', P.image1,
                 'image2', P.image2,
                 'image3', P.image3,
@@ -61,15 +65,14 @@ Order.findByStatus = (status, result) => {
         O.id;
         `;
 
-  db.query(sql, 
-    status, 
-    (err, data) => {
-        if (err) {
-        console.log("error:", err);
-        result(err, null);
-        } else {
-        result(null, data);
-        }
+  db.query(sql, status, (err, data) => {
+    if (err) {
+      console.log("error:", err);
+      result(err, null);
+    } else {
+      console.log(data);
+      result(null, data);
+    }
   });
 };
 
@@ -82,9 +85,11 @@ Order.create = (order, result) => {
                 status,
                 timestamp,
                 created_at,
-                updated_at
+                updated_at,
+                lat,
+                lng
             )
-        VALUES(?, ?, ?, ?, ?, ?)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
   db.query(
@@ -92,10 +97,12 @@ Order.create = (order, result) => {
     [
       order.id_client,
       order.id_address,
-      "CREADO", // 0. CREADO 1. PAGADO 2. DESPACHADO. 3. EN CAMINO. 4. ENTREGADO,
+      "PAGADO", // 1. PAGADO 2. DESPACHADO. 3. EN CAMINO. 4. ENTREGADO,
       Date.now(),
       new Date(),
       new Date(),
+      order.lat,
+      order.lng,
     ],
     (err, res) => {
       if (err) {
